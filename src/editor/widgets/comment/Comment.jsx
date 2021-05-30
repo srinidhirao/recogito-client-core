@@ -6,6 +6,7 @@ import TextEntryField from './TextEntryField';
 import PurposeSelect from './PurposeSelect';
 import { ChevronDownIcon } from '../../../Icons';
 import i18n from '../../../i18n';
+import CommentWithAtMention from './CommentWithAtMention';
 
 /** A single comment inside the CommentWidget **/
 const Comment = props => {
@@ -50,12 +51,18 @@ const Comment = props => {
     </div>
   ) : (
     <div className={ isEditable ? "r6o-widget comment editable" : "r6o-widget comment"}>
-      <TextEntryField 
+      {/* <TextEntryField 
         editable={isEditable}
         content={props.body.value} 
         onChange={onUpdateComment} 
         onSaveAndClose={props.onSaveAndClose}
-      />
+      /> */}
+      <CommentWithAtMention 
+        editable={isEditable}
+        content={props.body.value} 
+        onChange={onUpdateComment} 
+        onSaveAndClose={props.onSaveAndClose}/>
+
       { !isEditable && creatorInfo }
 
       { props.purposeSelector &&
