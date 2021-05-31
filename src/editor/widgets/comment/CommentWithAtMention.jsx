@@ -1,5 +1,6 @@
 import React, { Component } from 'preact/compat';
 import styles from './CommentWithAtMention.css';
+import i18n from '../../../i18n';
 
 /** 
  * A basic text entry field, for reuse in different widgets.
@@ -78,7 +79,7 @@ export default class CommentWithAtMention extends Component {
             this.usersMap['@' + user.name] = '@' + user.name + ':' + user.id
         })
 
-        this.currentAtMentionTextValue = 'Some text' // props.body.value;
+        this.currentAtMentionTextValue = this.props.content
 
         // Convert the Markup test so received into plain text value.
         this.currentAtMentionTextValue = this.getUserFacingTextFromMarkUpString(this.currentAtMentionTextValue)
@@ -338,8 +339,6 @@ export default class CommentWithAtMention extends Component {
     }
 
     hideDropdown() {
-        document.getElementsByClassName('r6o-widget r6o-tag')[0].children[0].removeAttribute('style');
-        document.getElementsByClassName('r6o-autocomplete')[0].removeAttribute('style');
         if (this.myDropDownDiv.classList.contains('show')) {
             this.myDropDownDiv.classList.remove('show');
         }
@@ -558,8 +557,10 @@ export default class CommentWithAtMention extends Component {
 
 
     handleInput() {
-        console.log('Handle Input function called.')
         this.highLightsDiv.innerHTML = this.applyHighlights(this.textAreaElement.value);
+        var textArea =  document.getElementById('textarea')
+        var event = new Event('change')
+        textArea.dispatchEvent(event)
     }
 
     render() {
@@ -578,16 +579,21 @@ export default class CommentWithAtMention extends Component {
                         <div class='highlights' id='highlightsDiv'>
                         </div>
                     </div>
-                    <textarea id='textarea'
+                    <textarea 
+                    id='textarea' 
+                    class='textareaStyle'
                         rows='3'
-                        placeholder='Use @ to mention.'
+                        placeholder={this.props.placeholder || i18n.t('Add a comment...')}
                         class='TextArea'
                         style={{ height: this.DEFAULT_TEXT_VIEW_HEGHT }}
                         onInput={this.onTextAreaInput.bind(this)}
                         onScroll={this.handleScroll.bind(this)}
                         onKeyDown={this.handleTextAreaKeyDown.bind(this)}
-                        onFocusOut={this.onTextAreaFocusOut.bind(this)}>
-                        {this.currentAtMentionTextValue}
+                        onFocusOut={this.onTextAreaFocusOut.bind(this)}
+                        disabled={!this.props.editable}
+                        onChange={this.props.onChange}
+                        >
+                        {this.props.content}
                     </textarea>
                 </div>
             </div>
