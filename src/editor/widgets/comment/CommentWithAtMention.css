@@ -185,27 +185,10 @@ textarea {
     box-shadow: #2980B9;
   } 
 
-  /* li {
-    padding:0 15px;
-    cursor:pointer;
-  }
-
-  li:hover {
-    background-color: blue;
-  }
-
-  .unorderedList {
-    position:absolute;
-    top:32px;
-    right:8px;
-    background-color:#fff;
-    border:1px solid lightgray; 
-    list-style-type:none;
-    margin:0;
-    padding:5px 0;
-    z-index:9999;
-  } */
-
   a:hover {
       background: #2980B9;
+  }
+
+  textarea::placeholder {
+    color:#c2c2c2;
   }
