@@ -3,6 +3,7 @@ import Comment from './Comment';
 import TextEntryField from './TextEntryField';
 import i18n from '../../../i18n';
 import PurposeSelect, { PURPOSES } from './PurposeSelect';
+import CommentWithAtMention from './CommentWithAtMention';
 
 const validPurposes = PURPOSES.map(p => p.value);
 
@@ -102,13 +103,22 @@ const CommentWidget = props => {
 
       { !props.readOnly && props.annotation &&
         <div className="r6o-widget comment editable">
-          <TextEntryField
+
+        <CommentWithAtMention 
+        content={draftReply.value} 
+        editable={true}
+        placeholder={comments.length > 0 ? i18n.t('Add a reply...') : i18n.t('Add a comment...')}
+        onChange={onEditReply} 
+        onSaveAndClose={() => props.onSaveAndClose()}
+        />
+
+          {/* <TextEntryField
             content={draftReply.value}
             editable={true}
             placeholder={comments.length > 0 ? i18n.t('Add a reply...') : i18n.t('Add a comment...')}
             onChange={onEditReply}
             onSaveAndClose={() => props.onSaveAndClose()}
-          /> 
+          />  */}
         { props.purposeSelector  && draftReply.value.length > 0 &&
           <PurposeSelect
               editable={true}

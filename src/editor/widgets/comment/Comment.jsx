@@ -61,7 +61,8 @@ const Comment = props => {
         editable={isEditable}
         content={props.body.value} 
         onChange={onUpdateComment} 
-        onSaveAndClose={props.onSaveAndClose}/>
+        onSaveAndClose={props.onSaveAndClose}
+        />
 
       { !isEditable && creatorInfo }
 
