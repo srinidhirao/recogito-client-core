@@ -17,66 +17,38 @@ export default class CommentWithAtMention extends Component {
     backdropDiv
     highLightsDiv
     textAreaElement
-    users
-    backupUsers
-    usersMap
     currentFocus
     properties
     isFireFox
     mirrorDivDisplayCheckbox
     mirrorDiv
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
+        // Load the user suggestions passed from Recogito
+        var users = props.userSuggestions || []
+
+        this.myFragment = React.createRef() 
+        this.dropdownDivHolderDiv = React.createRef() 
+        this.dropDownDiv = React.createRef() 
+        this.myDropDownDiv = React.createRef()
+        this.unorderedList = React.createRef() 
+        this.backdropDiv = React.createRef() 
+        this.highLightsDiv = React.createRef() 
+        this.textAreaElement = React.createRef() 
+
+        this.state = {showDropDown: false, backupUsers: users, users: users, usersMap: {}}
+        console.log('Data passed to this widget: ' + this.state.users.length);
     }
 
     componentDidMount() {
         console.log('Component Did mount')
 
-        // Define the variables used in this component.
-        this.myFragment = document.getElementById('myFragment')
-        this.dropdownDivHolderDiv = document.getElementById('dropdownDivHolderDiv')
-        this.dropDownDiv = document.getElementById('dropdownDiv')
-        this.myDropDownDiv = document.getElementById('myDropdown')
-        this.unorderedList = document.getElementById('usersList')
-        this.backdropDiv = document.getElementById('backdropDiv')
-        this.highLightsDiv = document.getElementById('highlightsDiv')
-        this.textAreaElement = document.getElementById('textarea')
-
-        this.users = [
-            {
-                id: 'srinidhi.rao@unvired.com',
-                name: 'Srinidhi'
-            },
-            {
-                id: 'srihari@unvired.com',
-                name: 'Srihari'
-            },
-            {
-                id: 3,
-                name: 'Aparna'
-            },
-            {
-                id: 4,
-                name: 'Praveen'
-            },
-            {
-                id: 5,
-                name: 'Srini'
-            },
-            {
-                id: 6,
-                name: 'Anup'
-            }
-        ]
-        this.backupUsers = this.users;
-        console.log('Data passed to this widget: ' + this.users.length);
-
         // Create a users map for conversion between markup string and user-facing string.
-        this.usersMap = {}  // Mapping of displayed usernames with the markup.
-        this.users.forEach(user => {
-            this.usersMap['@' + user.name] = '@' + user.name + ':' + user.id
+        this.state.usersMap = {}  // Mapping of displayed usernames with the markup.
+        this.state.users.forEach(user => {
+            this.state.usersMap['@' + user.name] = '@' + user.name + ':' + user.id
         })
 
         this.currentAtMentionTextValue = this.props.content
@@ -104,8 +76,8 @@ export default class CommentWithAtMention extends Component {
         this.currentFocus = defaultFocus;
 
         // Append Child Nodes.
-        this.clearChildNodes(this.unorderedList)
-        this.appendChildNodes(this.unorderedList, this.users)
+        this.clearChildNodes(this.unorderedList.current)
+        this.appendChildNodes(this.unorderedList.current, this.state.users)
 
         // Close the dropdown if the user clicks outside of it
         var that = this
@@ -156,8 +128,8 @@ export default class CommentWithAtMention extends Component {
 
         this.isFirefox = !(window.mozInnerScreenX == null);
         this.mirrorDivDisplayCheckbox = document.getElementById('mirrorDivDisplay');
-        this.textAreaElement.focus();
-        this.textAreaElement.select();
+        this.textAreaElement.current.focus();
+        this.textAreaElement.current.select();
     }
 
     applyHighlights(text) {
@@ -167,8 +139,8 @@ export default class CommentWithAtMention extends Component {
     }
 
     handleScroll() {
-        this.backdropDiv.scrollTop = this.textAreaElement.scrollTop;
-        this.backdropDiv.scrollLeft = this.textAreaElement.scrollLeft;
+        this.backdropDiv.current.scrollTop = this.textAreaElement.current.scrollTop;
+        this.backdropDiv.current.scrollLeft = this.textAreaElement.current.scrollLeft;
     }
 
     // Read the values from the args and append the ul list items.
@@ -208,7 +180,7 @@ export default class CommentWithAtMention extends Component {
         var that = this;
         return userfacingString
             .replace(/@[a-zA-Z].*?\b/g, function (value) {
-                return that.usersMap[value] ? that.usersMap[value] : value;
+                return that.state.usersMap[value] ? that.state.usersMap[value] : value;
             });
     }
 
@@ -222,10 +194,10 @@ export default class CommentWithAtMention extends Component {
         var nextIndex = 0;
         switch (event.code) {
             case 'ArrowUp':
-                nextIndex = (currentIndex - 1) % users.length;
+                nextIndex = (currentIndex - 1) % this.state.users.length;
                 break;
             case 'ArrowDown':
-                nextIndex = (currentIndex + 1) % users.length;
+                nextIndex = (currentIndex + 1) % this.state.users.length;
                 break;
             case 'Enter':
                 this.handleSelection(currentFocus);
@@ -237,7 +209,7 @@ export default class CommentWithAtMention extends Component {
         }
 
         if (nextIndex < 0)
-            nextIndex = users.length - 1
+            nextIndex = this.state.users.length - 1
 
         this.currentFocus = 't-' + nextIndex
         console.log('Next Index: ' + currentFocus)
@@ -245,7 +217,7 @@ export default class CommentWithAtMention extends Component {
     }
 
     clearChildNodes(unorderedList) {
-        this.unorderedList.innerHTML = ''
+        this.unorderedList.current.innerHTML = ''
     }
 
     appendChildNodes(unorderedList, users) {
@@ -264,7 +236,7 @@ export default class CommentWithAtMention extends Component {
             hrefItem.appendChild(document.createTextNode(user.name));
             listItem.appendChild(hrefItem)
 
-            this.unorderedList.appendChild(listItem)
+            this.unorderedList.current.appendChild(listItem)
         }
     }
 
@@ -275,7 +247,7 @@ export default class CommentWithAtMention extends Component {
         if (searchText.startsWith('@')) {
             searchText = searchText.substring(1)
         }
-        const filteredUsers = this.backupUsers.filter(user => {
+        const filteredUsers = this.state.backupUsers.filter(user => {
             if (user.name.toUpperCase().includes(searchText.toUpperCase())) {
                 return true;
             }
@@ -286,7 +258,7 @@ export default class CommentWithAtMention extends Component {
 
     onTextAreaInput(event) {
         const textareaText = event.target.value
-        const cursorPosition = this.textAreaElement.selectionStart
+        const cursorPosition = this.textAreaElement.current.selectionStart
 
         let textForConsideration = textareaText.substring(0, cursorPosition)
         let lastIndexOfSpaceCharacter = textForConsideration.lastIndexOf(' ')
@@ -294,10 +266,10 @@ export default class CommentWithAtMention extends Component {
         if (lastIndexOfAtCharacter > lastIndexOfSpaceCharacter) {
             let patternToMatch = textForConsideration.substring(lastIndexOfAtCharacter + 1)
 
-            const filteredUsers = this.filterUsers(this.backupUsers, patternToMatch)
+            const filteredUsers = this.filterUsers(this.state.backupUsers, patternToMatch)
             if (filteredUsers.length > 0) {
-                this.clearChildNodes(this.unorderedList)
-                this.appendChildNodes(this.unorderedList, filteredUsers)
+                this.clearChildNodes(this.unorderedList.current)
+                this.appendChildNodes(this.unorderedList.current, filteredUsers)
                 this.showDropdown()
             }
             else {
@@ -312,55 +284,46 @@ export default class CommentWithAtMention extends Component {
 
     ////////// UPDATE COMPLETE ////////
 
-    /* When the user clicks on the button, 
-        toggle between hiding and showing the dropdown content */
-    myFunction() {
-        document.getElementById("myDropdown").classList.toggle("show");
-    }
-
     showDropdown() {
-        const coordinates = this.getCaretCoordinates(this.textAreaElement, this.textAreaElement.selectionEnd);
+        const coordinates = this.getCaretCoordinates(this.textAreaElement.current, this.textAreaElement.current.selectionEnd);
 
         // So that false change events are not triggered.
         console.log('Removing Text Area Focus Out Event Listener...')
-        this.textAreaElement.removeEventListener('focusout', this.onTextAreaFocusOut)
+        this.textAreaElement.current.removeEventListener('focusout', this.onTextAreaFocusOut)
 
         // Account for Top scroll. 
-        coordinates.top = coordinates.top - this.textAreaElement.scrollTop
+        coordinates.top = coordinates.top - this.textAreaElement.current.scrollTop
 
-        console.log('Scroll Top: ' + this.textAreaElement.scrollTop)
+        console.log('Scroll Top: ' + this.textAreaElement.current.scrollTop)
 
         console.log('(top, left) = (%s, %s)', coordinates.top, coordinates.left);
-        this.myDropDownDiv.style['top'] = coordinates.top + 20 + 'px';
-        this.myDropDownDiv.style['left'] = coordinates.left + 'px';
-        if (!this.myDropDownDiv.classList.contains('show')) {
-            this.myDropDownDiv.classList.add('show');
-        }
+        this.myDropDownDiv.current.style['top'] = coordinates.top + 20 + 'px';
+        this.myDropDownDiv.current.style['left'] = coordinates.left + 'px';
+
+        this.state.showDropDown = true;
     }
 
     hideDropdown() {
-        if (this.myDropDownDiv.classList.contains('show')) {
-            this.myDropDownDiv.classList.remove('show');
-        }
+        this.state.showDropDown = false;
     }
 
     handleSelection(id) {
 
-        let updatedCursorPosition = this.insertAtCursor(this.textAreaElement, document.getElementById(id).innerText + ' ')
-        document.getElementById("myDropdown").classList.toggle("show");
-
+        let updatedCursorPosition = this.insertAtCursor(this.textAreaElement.current, document.getElementById(id).innerText + ' ')
+        this.state.showDropDown = false;
+        
         console.log('Updated Cursor Position: ' + updatedCursorPosition)
 
         setTimeout(() => {
-            this.textAreaElement.focus({ preventScroll: true })
-            this.textAreaElement.selectionStart = updatedCursorPosition
-            this.textAreaElement.selectionEnd = updatedCursorPosition
-            this.textAreaElement.setSelectionRange(updatedCursorPosition, updatedCursorPosition);
+            this.textAreaElement.current.focus({ preventScroll: true })
+            this.textAreaElement.current.selectionStart = updatedCursorPosition
+            this.textAreaElement.current.selectionEnd = updatedCursorPosition
+            this.textAreaElement.current.setSelectionRange(updatedCursorPosition, updatedCursorPosition);
 
             // Reset the change listener.   
             // FIXME: Not working
             console.log('Adding Text Area Focus Out Event Listener...')
-            this.textAreaElement.addEventListener('focusout', this.onTextAreaFocusOut.bind(this))
+            this.textAreaElement.current.addEventListener('focusout', this.onTextAreaFocusOut.bind(this))
         }, 100)
 
         this.handleInput()
@@ -456,7 +419,7 @@ export default class CommentWithAtMention extends Component {
      */
 
     getCursorPosition() {
-        var el = this.textAreaElement;
+        var el = this.textAreaElement.current;
         var pos = 0;
         var posEnd = 0;
         if ('selectionStart' in el) {
@@ -474,14 +437,14 @@ export default class CommentWithAtMention extends Component {
     };
 
     setCursorPosition(start, end) {
-        this.textAreaElement.selectionStart = start
-        this.textAreaElement.selectionEnd = end
+        this.textAreaElement.current.selectionStart = start
+        this.textAreaElement.current.selectionEnd = end
     }
 
     handleTextAreaKeyDown(e) {
         var position = this.getCursorPosition();
         var deleted = '';
-        var val = this.textAreaElement.value;
+        var val = this.textAreaElement.current.value;
         if (e.which != 8) {
             return true;
         }
@@ -521,7 +484,7 @@ export default class CommentWithAtMention extends Component {
             this.setCursorPosition(start, end);
             this.handleInput()
             console.log('Adding Text Area Focus Out Event Listener...')
-            this.textAreaElement.addEventListener('focusout', this.onTextAreaFocusOut.bind(this))
+            this.textAreaElement.current.addEventListener('focusout', this.onTextAreaFocusOut.bind(this))
         }
     }
 
@@ -557,8 +520,8 @@ export default class CommentWithAtMention extends Component {
 
 
     handleInput() {
-        this.highLightsDiv.innerHTML = this.applyHighlights(this.textAreaElement.value);
-        var textArea =  document.getElementById('textarea')
+        this.highLightsDiv.current.innerHTML = this.applyHighlights(this.textAreaElement.current.value);
+        var textArea =  this.textAreaElement.current // document.getElementById('textarea')
         var event = new Event('change')
         textArea.dispatchEvent(event)
     }
@@ -566,22 +529,23 @@ export default class CommentWithAtMention extends Component {
     render() {
 
         return (
-            <div>
-                <div id='dropdownDivHolderDiv'>
-                    <div class='dropdown' id='dropdownDiv'>
-                        <div class='dropdown-content' id='myDropdown' onKeyDown={this.handleKeyDown}>
-                            <ul class='unorderedList' id='usersList'></ul>
+            <div >
+                <div ref={this.dropdownDivHolderDiv} id='dropdownDivHolderDiv'>
+                    <div ref={this.dropDownDiv} class='dropdown' id='dropdownDiv'>
+                        <div ref={this.myDropDownDiv} class={this.state.showDropDown?'dropdown-content show':'dropdown-content hide'} id='myDropdown' onKeyDown={this.handleKeyDown}>
+                            <ul ref={this.unorderedList} class='unorderedList' id='usersList'></ul>
                         </div>
                     </div>
                 </div>
-                <div class='container' id='myFragment'>
-                    <div style={{ height: this.DEFAULT_TEXT_VIEW_HEGHT }} class="backdrop" id='backdropDiv'>
-                        <div class='highlights' id='highlightsDiv'>
+                <div ref={this.myFragment} class='container' id='myFragment'>
+                    <div ref={this.backdropDiv} style={{ height: this.DEFAULT_TEXT_VIEW_HEGHT }} class="backdrop" id='backdropDiv'>
+                        <div ref={this.highLightsDiv} class='highlights' id='highlightsDiv'>
                         </div>
                     </div>
-                    <textarea 
-                    id='textarea' 
-                    class='textareaStyle'
+                    <textarea
+                        ref={this.textAreaElement}
+                        id='textarea'
+                        class='textareaStyle'
                         rows='3'
                         placeholder={this.props.placeholder || i18n.t('Add a comment...')}
                         class='TextArea'
@@ -592,11 +556,12 @@ export default class CommentWithAtMention extends Component {
                         onFocusOut={this.onTextAreaFocusOut.bind(this)}
                         disabled={!this.props.editable}
                         onChange={this.props.onChange}
-                        >
+                    >
                         {this.props.content}
                     </textarea>
                 </div>
             </div>
+            
         )
     }
 }

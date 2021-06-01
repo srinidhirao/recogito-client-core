@@ -98,7 +98,9 @@ const CommentWidget = props => {
           body={body} 
           onUpdate={props.onUpdateBody}
           onDelete={props.onRemoveBody}
-          onSaveAndClose={props.onSaveAndClose} />
+          onSaveAndClose={props.onSaveAndClose} 
+          userSuggestions={props.userSuggestions || []}
+          />
       )}
 
       { !props.readOnly && props.annotation &&
@@ -110,6 +112,7 @@ const CommentWidget = props => {
         placeholder={comments.length > 0 ? i18n.t('Add a reply...') : i18n.t('Add a comment...')}
         onChange={onEditReply} 
         onSaveAndClose={() => props.onSaveAndClose()}
+        userSuggestions={props.userSuggestions || []}
         />
 
           {/* <TextEntryField
