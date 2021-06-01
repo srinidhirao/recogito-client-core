@@ -92,12 +92,10 @@ svg.a9s-annotationlayer .a9s-annotation.BLUE .a9s-inner {
 }
 
 .TextArea {
-    width: 100%;
+    width: 95%;  /* To account for the dropdown button added to the top right corner. */
     resize: none;
     height: 100px;
 }
-
-
 
 /* Highlights */
 
